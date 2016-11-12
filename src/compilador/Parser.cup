@@ -1,0 +1,56 @@
+package compilador;
+import java_cup.runtime.*;
+
+parser code
+{:
+    
+    public void report_error(String message,Object info){
+        StringBuilder m = new StringBuilder("Error");
+        if(info instanceof java_cup.runtime.Symbol){
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+            if(s.left >= 0){
+                m.append(" en linea "+(s.left+1));
+                if(s.right >= 0){
+                    m.append(", columna "+(s.right+1));
+                }
+            }
+            if(message=="Syntax error"){
+                m.append(". Identificador "+s.value + " no reconocido.");
+            }
+        }
+        message += " : "+m;
+        System.err.println(message);
+    }
+
+    public void report_fatal_error(String message,Object info){
+        report_error(message,info);
+        System.exit(1);
+    }
+
+:}
+
+action code
+{:
+//ingresar codigo java
+:}
+
+terminal ihtml, fhtml, ititle, ftitle, ihead, fhead, ibody, fbody, ih1, fh1;
+
+terminal String palabra;
+terminal Integer numero;
+
+non terminal INICIA, E, OCA, OCU;
+
+start with INICIA;
+
+INICIA::= ihtml {: System.out.println("<html>"); :}  E  fhtml  {: System.out.println("</html>"); :};
+
+E ::= ihead {: System.out.println("<head>"); :} OCA fhead {: System.out.println("</head>"); :} ibody {: System.out.println("<body>"); :} OCU fbody {: System.out.println("</body>"); :};
+
+OCA ::= ititle {: System.out.println("<title>"); :} palabra:pal {: System.out.println(""+pal); :} ftitle {: System.out.println("</title>"); :};
+
+OCU ::= ih1 {: System.out.println("<h1>"); :} palabra:pal {: System.out.println(""+pal); :} fh1 {: System.out.println("</h1>"); :};
+
+
+
+
